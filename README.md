@@ -13,14 +13,14 @@ This library is compatible and was tested with React Native projects with versio
 
 Install the plugin via NPM:
 ```
-$ npm install react-native-nfc --save
-    
+$ npm install @smartractechnology/react-native-rfid-nfc --save
+
 ```
 
 and then link it:
 
 ```
-$ react-native link react-native-nfc
+$ react-native link @smartractechnology/react-native-rfid-nfc
 ```
 
 ## Configuration
@@ -42,8 +42,8 @@ Add the following attribute to your `<activity>` section to ensure that all NFC 
 android:launchMode="singleTask"
 ```
 
-Add the following intent filters and metadata tag to instruct Android that you want to catch NFC intents that contain NDEF 
-records and generic payloads about NFC tech, as a fallback in case NDEF messages could not be parsed (see [here](https://developer.android.com/guide/topics/connectivity/nfc/nfc.html#dispatching) 
+Add the following intent filters and metadata tag to instruct Android that you want to catch NFC intents that contain NDEF
+records and generic payloads about NFC tech, as a fallback in case NDEF messages could not be parsed (see [here](https://developer.android.com/guide/topics/connectivity/nfc/nfc.html#dispatching)
 for more info about this).
 
 ```xml
@@ -147,14 +147,14 @@ NFC.addListener(listener);
 This is a more complex example:
 
 ```javascript
-import NFC, {NfcDataType, NdefRecordType} from "react-native-nfc";
+import NFC, {NfcDataType, NdefRecordType} from "@smartractechnology/react-native-rfid-nfc";
 import React, {Component} from "react";
 import {ToastAndroid} from "react-native";
 
 NFC.addListener((payload) => {
 
     switch (payload.type) {
-        
+
         case NfcDataType.NDEF:
             let messages = payload.data;
             for (let i in messages) {
@@ -172,7 +172,7 @@ NFC.addListener((payload) => {
                 }
             }
             break;
-            
+
         case NfcDataType.TAG:
             ToastAndroid.show(
                 `The TAG is non-NDEF:\n\n${payload.data.description}`,
@@ -189,12 +189,12 @@ NFC.addListener((payload) => {
 ```
 
 Notice:
-Once you've integrated the plugin in this way you'll be able to receive the data read via NFC by your Android device. 
+Once you've integrated the plugin in this way you'll be able to receive the data read via NFC by your Android device.
 You will receive the data *even if your app is closed (or killed)* and is started as a consequence of a NFC event.
 If you want to receive the data in a given time,just change the position where you addListener to NFC,such as doing it in the componentDidMount in a page of your program.
 
 ```javascript
-import NFC, {NfcDataType, NdefRecordType} from "react-native-nfc";
+import NFC, {NfcDataType, NdefRecordType} from "@smartractechnology/react-native-rfid-nfc";
 
 export default class NfcScanPage extends Component {
 
@@ -234,12 +234,12 @@ The listener receives a JSON object that has a **type** property with possible v
 ### NDEF Payload format
 
 Property | Values
---- | --- 
+--- | ---
 type | Always **NfcDataType.NDEF**
 id   | The id of the tag in hex format.
 data | Contains an array of messages. Each message is an array of records.
- 
- 
+
+
 
 #### NDEF Records format
 Each record object contains always the properties *type* and *data*.
@@ -257,7 +257,7 @@ NdefRecordType.MIME | Base64 data of the mime data | -
 ### TAG Payload format
 
 Property | Values
---- | --- 
+--- | ---
 type | Always **NfcDataType.TAG**
 techList | List of strings about the discoverred tech
 description | string description of the tag useful for debug

@@ -1,5 +1,5 @@
 {
-  "name": "react-native-rfid-nfc",
+  "name": "@smartractechnology/react-native-rfid-nfc",
   "description": "This project has the goal of making it easy (or easier) to scan NFC tags and read the NDEF records they contain",
   "license": "MIT",
   "homepage": "https://github.com/SMARTRACTECHNOLOGY/react-native-rfid-nfc",
