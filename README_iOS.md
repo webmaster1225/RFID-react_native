@@ -67,7 +67,7 @@ NFC.removeListener()
 ## Methods
 + `initialize` - Creates NFC Reader Session
 + `addListener` - Add event listener to listen on NFC scan Messages
-+ `addListener` - Remove event Listeners
++ `removeListener` - Remove event Listeners
 
 ## Data
 The returned data contains an array of NDEF Payload format
