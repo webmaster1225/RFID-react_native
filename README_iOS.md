@@ -56,12 +56,12 @@ import NFC from "@smartractechnology/react-native-rfid-nfc";
 NFC.initialize()
 
 // Listen on NFC Tag Scan Messages
-NFC.addListener((data) => {
+NFC.addListenerIOS((data) => {
   console.log(data)
 })
 
 // Remove the Listeners
-NFC.removeListener()
+NFC.removeListenerIOS()
 ```
 
 ## Methods
