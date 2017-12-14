@@ -48,11 +48,21 @@ NFC.initialize = ReactNativeNFC.initialize || (() => ({}));
 NFC.addListener = (name = NFC_DISCOVERED, callback) => {
     _listeners[name] = callback;
     _registerToEvents();
-    eventEmitter.addListener(NFC_DISCOVERED, callback);
-    eventEmitter.addListener(NFC_ERROR, callback);
 };
 
-NFC.removeListener = (name = NFC_DISCOVERED) => {
+NFC.addListenerIOS = (callback) => {
+    eventEmitter.addListener(NFC_DISCOVERED, callback);
+}
+
+NFC.removeListenerIOS = () => {
+    eventEmitter.removeAllListeners(NFC_DISCOVERED);
+};
+
+NFC.removeAllListenersIOS = () => {
+    eventEmitter.removeAllListeners(NFC_DISCOVERED);
+};
+
+NFC.removeListener = (name) => {
     delete _listeners[name];
     eventEmitter.removeAllListeners(NFC_DISCOVERED);
     eventEmitter.removeAllListeners(NFC_ERROR);
@@ -60,8 +70,6 @@ NFC.removeListener = (name = NFC_DISCOVERED) => {
 
 NFC.removeAllListeners = () => {
     DeviceEventEmitter.removeAllListeners(NFC_DISCOVERED);
-    eventEmitter.removeAllListeners(NFC_DISCOVERED);
-    eventEmitter.removeAllListeners(NFC_ERROR);
     _listeners = {};
     _registeredToEvents = false;
 };
