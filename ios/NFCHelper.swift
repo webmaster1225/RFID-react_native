@@ -36,6 +36,7 @@ class NFCHelper : NSObject {
   }
   
   // formatData :: [NFCNDEFMessage] -> [[String : String]]
+  @available(iOS 11.0, *)
   func formatData (_ nfcMessages : [NFCNDEFMessage]) -> [[String : String]] {
     return nfcMessages.map({ (message) -> [[String : String]] in
       let records = message.records
@@ -71,7 +72,7 @@ class NFCHelper : NSObject {
   // formatError :: Error -> [String : String]
   func formatError (_ error: Error) -> [String : String] {
     var errorObj : [String : String] = [:]
-    errorObj["message"] = error.localizedDescription
+    errorObj["error"] = error.localizedDescription
     return errorObj
   }
   

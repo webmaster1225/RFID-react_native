@@ -27,8 +27,19 @@ let _registeredToEvents = false;
 let _listeners = {};
 let _registerToEvents = () => {
     if(!_registeredToEvents){
-        startUpNfcData(_notifyListeners);
-        DeviceEventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
+        try{
+            startUpNfcData(_notifyListeners);
+            DeviceEventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
+            DeviceEventEmitter.addListener(NFC_ERROR, _notifyListeners);
+        }catch(androidErr){
+            console.log("androidErr", androidErr);
+        }
+        try{
+            eventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
+            eventEmitter.addListener(NFC_ERROR, _notifyListeners);
+        }catch(iosErr){
+            console.log("iosErr", iosErr);
+        }
         _registeredToEvents = true;
     }
 };
@@ -45,31 +56,28 @@ const NFC = {};
 
 NFC.initialize = ReactNativeNFC.initialize || (() => ({}));
 
-NFC.addListener = (name = NFC_DISCOVERED, callback) => {
+NFC.addListener = (name, callback) => {
     _listeners[name] = callback;
     _registerToEvents();
 };
 
-NFC.addListenerIOS = (callback) => {
-    eventEmitter.addListener(NFC_DISCOVERED, callback);
-}
-
-NFC.removeListenerIOS = () => {
-    eventEmitter.removeAllListeners(NFC_DISCOVERED);
-};
-
-NFC.removeAllListenersIOS = () => {
-    eventEmitter.removeAllListeners(NFC_DISCOVERED);
-};
-
 NFC.removeListener = (name) => {
     delete _listeners[name];
-    eventEmitter.removeAllListeners(NFC_DISCOVERED);
-    eventEmitter.removeAllListeners(NFC_ERROR);
 };
 
 NFC.removeAllListeners = () => {
-    DeviceEventEmitter.removeAllListeners(NFC_DISCOVERED);
+    try{
+        DeviceEventEmitter.removeAllListeners(NFC_DISCOVERED);
+        DeviceEventEmitter.removeAllListeners(NFC_ERROR);
+    }catch(androidErr){
+        console.log("androidErr", androidErr);
+    }
+    try{
+        eventEmitter.removeAllListeners(NFC_DISCOVERED);
+        eventEmitter.removeAllListeners(NFC_ERROR);
+    }catch(iosErr){
+        console.log("iosErr", iosErr);
+    }
     _listeners = {};
     _registeredToEvents = false;
 };
