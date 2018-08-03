@@ -1,5 +1,5 @@
 {
-  "name": "joeldiaz2302/react-native-rfid-nfc",
+  "name": "@joeldiaz2302/react-native-rfid-nfc",
   "description": "This project has the goal of making it easy (or easier) to scan NFC tags and read the NDEF records they contain",
   "license": "MIT",
   "homepage": "https://github.com/joeldiaz2302/react-native-rfid-nfc",
