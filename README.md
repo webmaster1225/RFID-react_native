@@ -14,14 +14,14 @@ This library is compatible and was tested with React Native projects with versio
 
 Install the plugin via NPM:
 ```
-$ npm install @smartractechnology/react-native-rfid-nfc --save
+$ npm install @joeldiaz2302/react-native-rfid-nfc --save
 
 ```
 
 and then link it:
 
 ```
-$ react-native link @smartractechnology/react-native-rfid-nfc
+$ react-native link @joeldiaz2302/react-native-rfid-nfc
 ```
 
 ## Configuration
@@ -148,7 +148,7 @@ NFC.addListener(listener);
 This is a more complex example:
 
 ```javascript
-import NFC, {NfcDataType, NdefRecordType} from "@smartractechnology/react-native-rfid-nfc";
+import NFC, {NfcDataType, NdefRecordType} from "@joeldiaz2302/react-native-rfid-nfc";
 import React, {Component} from "react";
 import {ToastAndroid} from "react-native";
 
@@ -195,7 +195,7 @@ You will receive the data *even if your app is closed (or killed)* and is starte
 If you want to receive the data in a given time,just change the position where you addListener to NFC,such as doing it in the componentDidMount in a page of your program.
 
 ```javascript
-import NFC, {NfcDataType, NdefRecordType} from "@smartractechnology/react-native-rfid-nfc";
+import NFC, {NfcDataType, NdefRecordType} from "@joeldiaz2302/react-native-rfid-nfc";
 
 export default class NfcScanPage extends Component {
 

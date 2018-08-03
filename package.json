@@ -1,8 +1,8 @@
 {
-  "name": "@smartractechnology/react-native-rfid-nfc",
+  "name": "joeldiaz2302/react-native-rfid-nfc",
   "description": "This project has the goal of making it easy (or easier) to scan NFC tags and read the NDEF records they contain",
   "license": "MIT",
-  "homepage": "https://github.com/SMARTRACTECHNOLOGY/react-native-rfid-nfc",
+  "homepage": "https://github.com/joeldiaz2302/react-native-rfid-nfc",
   "version": "0.4.0",
   "main": "index.js",
   "keywords": [
@@ -13,11 +13,11 @@
     "native"
   ],
   "bugs": {
-    "url": "https://github.com/SMARTRACTECHNOLOGY/react-native-rfid-nfc/issues"
+    "url": "https://github.com/joeldiaz2302/react-native-rfid-nfc/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SMARTRACTECHNOLOGY/react-native-rfid-nfc.git"
+    "url": "git+https://github.com/joeldiaz2302/react-native-rfid-nfc.git"
   },
   "devDependencies": {
     "react-native": "0.40.0"
@@ -26,11 +26,11 @@
     "react-native": ">=0.40.0"
   },
   "nativePackage": true,
-  "author": "Smartrac Technology Fletcher Inc",
+  "author": "Joel Diaz",
   "contributors": [
     {
-      "name": "Smartrac Technology Fletcher Inc",
-      "url": "https://github.com/SMARTRACTECHNOLOGY"
+      "name": "Joel Diaz",
+      "url": "https://github.com/joeldiaz2302"
     }
   ]
 }

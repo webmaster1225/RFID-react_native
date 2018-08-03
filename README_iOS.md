@@ -11,7 +11,7 @@ and for your App ID [see here](http://help.apple.com/xcode/mac/current/#/dev88ff
 
 ## Installation
 ```bash
-$ npm install @smartractechnology/react-native-rfid-nfc --save
+$ npm install @joeldiaz2302/react-native-rfid-nfc --save
 ```
 
 ## Configuration
@@ -25,7 +25,7 @@ $ npm install @smartractechnology/react-native-rfid-nfc --save
 + Search for Objective-C Bridging Header
 + Double click on the empty column
 + Copy the full path to this file `ReactNativeNFC-Bridging-Header.h`
-+ Enter the full path to `ReactNativeNFC-Bridging-Header.h` E.g. /Users/me/myApp/node_modules/@smartractechnology/react-native-rfid-nfc/ReactNativeNFC-Bridging-Header.h
++ Enter the full path to `ReactNativeNFC-Bridging-Header.h` E.g. /Users/me/myApp/node_modules/@joeldiaz2302/react-native-rfid-nfc/ReactNativeNFC-Bridging-Header.h
 
 ### App Configuration
 #### info.plist
@@ -50,7 +50,7 @@ in your app but if not add the following to `YourAppName.entitlements`
 ## Example
 ```js
 // import NFCReader
-import NFC from "@smartractechnology/react-native-rfid-nfc";
+import NFC from "@joeldiaz2302/react-native-rfid-nfc";
 
 // initialize NFCReader Session
 NFC.initialize()
