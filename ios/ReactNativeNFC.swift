@@ -16,7 +16,8 @@ class ReactNativeNFC: RCTEventEmitter, NFCNDEFReaderSessionDelegate {
   @objc func isSupported() -> Void {
     if #available(iOS 11.0, *) {
       if NFCNDEFReaderSession.readingAvailable {
-        sendEvent(withName: "__NFC_ENABLED")
+        sendNFCEnabledEvent({})
+        return
       }
     }
     sendNFCMissingEvent({})
@@ -29,12 +30,12 @@ class ReactNativeNFC: RCTEventEmitter, NFCNDEFReaderSessionDelegate {
         session.begin()
       } else {
         let error = NSError(domain: "", code: -110, userInfo: nil)
-        let data = nfcHelper.formatHardwareError(error)
+        let data = nfcHelper.formatError(error)
         sendNFCMissingEvent(data)
       }
     } else {
       let error = NSError(domain: "", code: -111, userInfo: nil)
-      let data = nfcHelper.formatHardwareError(error)
+      let data = nfcHelper.formatError(error)
       sendNFCMissingEvent(data)
     }
   }
@@ -51,6 +52,10 @@ class ReactNativeNFC: RCTEventEmitter, NFCNDEFReaderSessionDelegate {
     sendEvent(withName: "__NFC_ERROR", body: data)
   }
 
+  func sendNFCEnabledEvent(_ data: Any) -> Void {
+    sendEvent(withName: "__NFC_ENABLED", body: data)
+  }
+  
   func sendNFCMissingEvent(_ data: Any) -> Void {
     sendEvent(withName: "__NFC_MISSING", body: data)
   }

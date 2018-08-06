@@ -70,11 +70,6 @@ class NFCHelper: NSObject {
   // formatError:: Error -> [String: String]
   func formatError (_ error: Error) -> [String: String] {
     var errorObj: [String: String] = [:]
-    errorObj["message"] = error.localizedDescription
-    return errorObj
-  }
-  func formatHardwareError (_ error: Error) -> [String: String] {
-    var errorObj: [String: String] = [:]
     errorObj["error"] = error.localizedDescription
     return errorObj
   }

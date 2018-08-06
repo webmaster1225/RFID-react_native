@@ -32,8 +32,8 @@ let _listeners = {};
 let _loading = false;
 
 if (Platform.OS == "ios") {
-    eventEmitter.addListener(NFC_MISSING, ()=>{_enabled = false; console.log("NFC_MISSING");});
-    eventEmitter.addListener(NFC_ENABLED, ()=>{_enabled = true; console.log("NFC_ENABLED");});
+    eventEmitter.addListener(NFC_MISSING, ()=>{_enabled = false; _loading = false;});
+    eventEmitter.addListener(NFC_ENABLED, ()=>{_enabled = true; _loading = false;});
     ReactNativeNFC.isSupported()
     _loading = true;
 }
@@ -76,7 +76,9 @@ NFC.initialize = () => {
     }
 };
 
-NFC.isEnabled = _enabled && !_loading;
+NFC.isEnabled = ()=>{
+    return _enabled && !_loading;
+}
 
 NFC.addListener = (name, callback) => {
     _listeners[name] = callback;
