@@ -29,6 +29,7 @@ const startUpNfcData = ReactNativeNFC.getStartUpNfcData || (() => ({}));
 let _enabled = true;
 let _registeredToEvents = false;
 let _listeners = {};
+let _errListeners = {};
 let _loading = false;
 
 if (Platform.OS == "ios") {
@@ -40,18 +41,22 @@ if (Platform.OS == "ios") {
 
 let _registerToEvents = () => {
     if(!_registeredToEvents){
-        try{
-            startUpNfcData(_notifyListeners);
-            DeviceEventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
-            DeviceEventEmitter.addListener(NFC_ERROR, _notifyListeners);
-        }catch(androidErr){
-            console.log("androidErr", androidErr);
+        if (Platform.OS == "ios") {
+            try{
+                eventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
+                eventEmitter.addListener(NFC_ERROR, _notifyErrListeners);
+            }catch(iosErr){
+                console.log("iosErr", iosErr);
+            }
         }
-        try{
-            eventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
-            eventEmitter.addListener(NFC_ERROR, _notifyListeners);
-        }catch(iosErr){
-            console.log("iosErr", iosErr);
+        else{
+            try{
+                startUpNfcData(_notifyListeners);
+                DeviceEventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
+                DeviceEventEmitter.addListener(NFC_ERROR, _notifyErrListeners);
+            }catch(androidErr){
+                console.log("androidErr", androidErr);
+            }
         }
         _registeredToEvents = true;
     }
@@ -61,6 +66,14 @@ let _notifyListeners = (data) => {
     if(data){
         for(let _listener in _listeners){
             _listeners[_listener](data);
+        }
+    }
+};
+
+let _notifyErrListeners = (data) => {
+    if(data){
+        for(let _listener in _errListeners){
+            _errListeners[_listener](data);
         }
     }
 };
@@ -80,29 +93,40 @@ NFC.isEnabled = ()=>{
     return _enabled && !_loading;
 }
 
-NFC.addListener = (name, callback) => {
-    _listeners[name] = callback;
+NFC.addListener = (name, callback, error) => {
+    if(callback){
+        _listeners[name] = callback; 
+    }
+    if(error){
+        _errListeners[name] = error;
+    }
     _registerToEvents();
 };
 
 NFC.removeListener = (name) => {
     delete _listeners[name];
+    delete _errListeners[name];
 };
 
 NFC.removeAllListeners = () => {
-    try{
-        DeviceEventEmitter.removeAllListeners(NFC_DISCOVERED);
-        DeviceEventEmitter.removeAllListeners(NFC_ERROR);
-    }catch(androidErr){
-        console.log("androidErr", androidErr);
+    if (Platform.OS == "ios") {
+        try{
+            eventEmitter.removeAllListeners(NFC_DISCOVERED);
+            eventEmitter.removeAllListeners(NFC_ERROR);
+        }catch(iosErr){
+            console.log("iosErr", iosErr);
+        }
     }
-    try{
-        eventEmitter.removeAllListeners(NFC_DISCOVERED);
-        eventEmitter.removeAllListeners(NFC_ERROR);
-    }catch(iosErr){
-        console.log("iosErr", iosErr);
+    else{
+        try{
+            DeviceEventEmitter.removeAllListeners(NFC_DISCOVERED);
+            DeviceEventEmitter.removeAllListeners(NFC_ERROR);
+        }catch(androidErr){
+            console.log("androidErr", androidErr);
+        }
     }
     _listeners = {};
+    _errListeners = {};
     _registeredToEvents = false;
 };
 
