@@ -39,6 +39,7 @@ if (Platform.OS == "ios") {
     eventEmitter.addListener(NFC_UNAVAILABLE, () => {_enabled = false; _loading = false; _status = "unavailable";});
     eventEmitter.addListener(NFC_ENABLED, () => {_enabled = true; _loading = false; _status = "ready";});
     ReactNativeNFC.isSupported()
+    _status = "waiting";
     _loading = true;
 }
 
@@ -96,7 +97,7 @@ NFC.isEnabled = () => {
     return _enabled && !_loading;
 }
 
-NFC.deviceStatus = () => {
+NFC.checkDeviceStatus = () => {
     return _status;
 }
 
