@@ -18,9 +18,12 @@ class ReactNativeNFC: RCTEventEmitter, NFCNDEFReaderSessionDelegate {
       if NFCNDEFReaderSession.readingAvailable {
         sendNFCEnabledEvent({})
         return
+      } else {
+        sendNFCMissingEvent({})
+        return
       }
     }
-    sendNFCMissingEvent({})
+    sendNFCUnavailableEvent({})
   }
 
   @objc func initialize() -> Void {
@@ -29,19 +32,15 @@ class ReactNativeNFC: RCTEventEmitter, NFCNDEFReaderSessionDelegate {
         let session = NFCNDEFReaderSession(delegate: self, queue: DispatchQueue.main, invalidateAfterFirstRead: true)
         session.begin()
       } else {
-        let error = NSError(domain: "", code: -110, userInfo: nil)
-        let data = nfcHelper.formatError(error)
-        sendNFCMissingEvent(data)
+        sendNFCMissingEvent({})
       }
     } else {
-      let error = NSError(domain: "", code: -111, userInfo: nil)
-      let data = nfcHelper.formatError(error)
-      sendNFCMissingEvent(data)
+      sendNFCUnavailableEvent({})
     }
   }
 
   override func supportedEvents() -> [String]! {
-    return ["__NFC_DISCOVERED", "__NFC_ERROR", "__NFC_MISSING", "__NFC_ENABLED"]
+    return ["__NFC_DISCOVERED", "__NFC_ERROR", "__NFC_MISSING", "__NFC_UNAVAILABLE", "__NFC_ENABLED"]
   }
 
   func sendEvent(_ data: Any) -> Void {
@@ -55,7 +54,11 @@ class ReactNativeNFC: RCTEventEmitter, NFCNDEFReaderSessionDelegate {
   func sendNFCEnabledEvent(_ data: Any) -> Void {
     sendEvent(withName: "__NFC_ENABLED", body: data)
   }
-  
+
+  func sendNFCUnavailableEvent(_ data: Any) -> Void {
+    sendEvent(withName: "__NFC_UNAVAILABLE", body: data)
+  }
+
   func sendNFCMissingEvent(_ data: Any) -> Void {
     sendEvent(withName: "__NFC_MISSING", body: data)
   }

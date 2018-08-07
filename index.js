@@ -23,6 +23,7 @@ const eventEmitter = new NativeEventEmitter(ReactNativeNFC);
 const NFC_DISCOVERED = '__NFC_DISCOVERED';
 const NFC_ERROR = '__NFC_ERROR';
 const NFC_MISSING = '__NFC_MISSING';
+const NFC_UNAVAILABLE = '__NFC_UNAVAILABLE';
 const NFC_ENABLED = '__NFC_ENABLED';
 const startUpNfcData = ReactNativeNFC.getStartUpNfcData || (() => ({}));
 
@@ -31,10 +32,12 @@ let _registeredToEvents = false;
 let _listeners = {};
 let _errListeners = {};
 let _loading = false;
+let _status = "ready";
 
 if (Platform.OS == "ios") {
-    eventEmitter.addListener(NFC_MISSING, ()=>{_enabled = false; _loading = false;});
-    eventEmitter.addListener(NFC_ENABLED, ()=>{_enabled = true; _loading = false;});
+    eventEmitter.addListener(NFC_MISSING, () => {_enabled = false; _loading = false; _status = "missing";});
+    eventEmitter.addListener(NFC_UNAVAILABLE, () => {_enabled = false; _loading = false; _status = "unavailable";});
+    eventEmitter.addListener(NFC_ENABLED, () => {_enabled = true; _loading = false; _status = "ready";});
     ReactNativeNFC.isSupported()
     _loading = true;
 }
@@ -89,8 +92,12 @@ NFC.initialize = () => {
     }
 };
 
-NFC.isEnabled = ()=>{
+NFC.isEnabled = () => {
     return _enabled && !_loading;
+}
+
+NFC.deviceStatus = () => {
+    return _status;
 }
 
 NFC.addListener = (name, callback, error) => {
