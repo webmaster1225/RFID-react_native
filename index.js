@@ -31,17 +31,20 @@ let _enabled = true;
 let _registeredToEvents = false;
 let _listeners = {};
 let _errListeners = {};
-let _loading = false;
-let _status = "ready";
+let _loading = true;
+let _status = "waiting";
 
 if (Platform.OS == "ios") {
     eventEmitter.addListener(NFC_MISSING, () => {_enabled = false; _loading = false; _status = "missing";});
     eventEmitter.addListener(NFC_UNAVAILABLE, () => {_enabled = false; _loading = false; _status = "unavailable";});
     eventEmitter.addListener(NFC_ENABLED, () => {_enabled = true; _loading = false; _status = "ready";});
-    ReactNativeNFC.isSupported()
-    _status = "waiting";
-    _loading = true;
+} else {
+    DeviceEventEmitter.addListener(NFC_MISSING, () => {_enabled = false; _loading = false; _status = "missing";});
+    DeviceEventEmitter.addListener(NFC_UNAVAILABLE, () => {_enabled = false; _loading = false; _status = "unavailable";});
+    DeviceEventEmitter.addListener(NFC_ENABLED, () => {_enabled = true; _loading = false; _status = "ready";});
 }
+
+ReactNativeNFC.isSupported();
 
 let _registerToEvents = () => {
     if(!_registeredToEvents){
@@ -58,6 +61,7 @@ let _registerToEvents = () => {
                 startUpNfcData(_notifyListeners);
                 DeviceEventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
                 DeviceEventEmitter.addListener(NFC_ERROR, _notifyErrListeners);
+
             }catch(androidErr){
                 console.log("androidErr", androidErr);
             }

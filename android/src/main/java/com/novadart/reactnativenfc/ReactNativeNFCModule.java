@@ -25,6 +25,11 @@ import com.novadart.reactnativenfc.parser.TagParser;
 public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements ActivityEventListener,LifecycleEventListener {
 
     private static final String EVENT_NFC_DISCOVERED = "__NFC_DISCOVERED";
+    private static final String EVENT_NFC_ERROR = "__NFC_ERROR";
+    private static final String EVENT_NFC_MISSING = "__NFC_MISSING";
+    private static final String EVENT_NFC_UNAVAILABLE = "__NFC_UNAVAILABLE";
+    private static final String EVENT_NFC_ENABLED = "__NFC_ENABLED";
+    private NfcAdapter adapter;
 
     // caches the last message received, to pass it to the listeners when it reconnects
     private WritableMap startupNfcData;
@@ -36,6 +41,9 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
         super(reactContext);
         reactContext.addActivityEventListener(this);
         reactContext.addLifecycleEventListener(this);
+        adapter = NfcAdapter.getDefaultAdapter(reactContext);
+
+
     }
 
     @Override
@@ -57,8 +65,21 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
 
             switch (intent.getAction()){
 
+                case NfcAdapter.ACTION_ADAPTER_STATE_CHANGED:
+                    Parcelable[] raws = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+                    System.out.println("NFC Module ACTION_ADAPTER_STATE_CHANGED");
+                    for (Parcelable row : raws){
+                        System.out.println(row);
+                    }
+                    break;
+
                 case NfcAdapter.ACTION_NDEF_DISCOVERED:
                     Parcelable[] rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+                    
+                    System.out.println("NFC Module ACTION_NDEF_DISCOVERED");
+                    for (Parcelable row : rawMessages){
+                        System.out.println(row);
+                    }
 
                     if (rawMessages != null) {
                         NdefMessage[] messages = new NdefMessage[rawMessages.length];
@@ -76,6 +97,7 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
                 // ACTION_TAG_DISCOVERED is an unlikely case, according to https://developer.android.com/guide/topics/connectivity/nfc/nfc.html
                 case NfcAdapter.ACTION_TAG_DISCOVERED:
                 case NfcAdapter.ACTION_TECH_DISCOVERED:
+                    System.out.println("NFC Module ACTION_TECH_DISCOVERED or ACTION_TAG_DISCOVERED");
                     Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                     String serialNumber = getSerialNumber(tag);
 
@@ -104,11 +126,29 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
         }
     }
 
+    @ReactMethod
+    public void isSupported(){
+        if(adapter != null){
+            if(adapter.isEnabled()){
+                sendResponseEvent(EVENT_NFC_ENABLED, null);
+            }else{
+                sendResponseEvent(EVENT_NFC_MISSING, null);
+            }
+        }else{
+            sendResponseEvent(EVENT_NFC_UNAVAILABLE, null);
+        }
+    }
 
     private void sendEvent(@Nullable WritableMap payload) {
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(EVENT_NFC_DISCOVERED, payload);
+    }
+
+    private void sendResponseEvent(String event, @Nullable WritableMap payload) {
+        getReactApplicationContext()
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit(event, payload);
     }
 
     private String getSerialNumber(Tag tag){
