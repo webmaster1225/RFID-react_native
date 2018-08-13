@@ -101,9 +101,6 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
     }
 
     private void handleIntent(Intent intent, boolean startupIntent) {
-        WritableMap data = Arguments.createMap();
-        JSONObject resData = new JSONObject();
-
         if (intent != null && intent.getAction() != null) {
 
             switch (intent.getAction()){
@@ -151,8 +148,6 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
                     break;
 
             }
-            data.putString("value", resData.toString());
-            sendResponseEvent("__TESTING", data);
             stopForegroundDispatch(getReactApplicationContext().getCurrentActivity(), adapter);
         }
     }
@@ -192,8 +187,6 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
 
     @ReactMethod
     public void isSupported(){
-        WritableMap data = Arguments.createMap();
-        JSONObject resData = new JSONObject();
         if(adapter != null){
             if(adapter.isEnabled()){
                 Log.d("NFC_PLUGIN_LOG", "EVENT_NFC_ENABLED THE THING IS ENABLED");
@@ -206,17 +199,17 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
             Log.d("NFC_PLUGIN_LOG", "EVENT_NFC_ENABLED THE THING IS SEEMS TO NOT HAVE THE THING");
             sendResponseEvent(EVENT_NFC_UNAVAILABLE, null);
         }
-        data.putString("value", resData.toString());
-        sendResponseEvent("__TESTING", data);
     }
 
     private void sendEvent(@Nullable WritableMap payload) {
+        payload.putString("origin", "android");
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(EVENT_NFC_DISCOVERED, payload);
     }
 
     private void sendResponseEvent(String event, @Nullable WritableMap payload) {
+        payload.putString("origin", "android");
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(event, payload);

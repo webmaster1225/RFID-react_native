@@ -57,6 +57,7 @@ class NFCHelper: NSObject {
           tid = String(payloadM![0])
         }
 
+        nfcData["origin"] = "ios"
         nfcData["payload"] = payloadD
         nfcData["tid"] = tid
         nfcData["type"] = type

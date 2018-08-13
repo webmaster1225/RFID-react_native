@@ -39,23 +39,17 @@ if (Platform.OS == "ios") {
     eventEmitter.addListener(NFC_UNAVAILABLE, () => {_enabled = false; _loading = false; _status = "unavailable";});
     eventEmitter.addListener(NFC_ENABLED, () => {_enabled = true; _loading = false; _status = "ready";});
 } else {
-    DeviceEventEmitter.addListener("__TESTING", (res) => {
-        console.log("DeviceEventEmitter testing", res);
-    });
     DeviceEventEmitter.addListener(NFC_MISSING, (res) => {
-        console.log("DeviceEventEmitter missing", res);
         _enabled = false;
         _loading = false;
         _status = "missing";
     });
     DeviceEventEmitter.addListener(NFC_UNAVAILABLE, (res) => {
-        console.log("DeviceEventEmitter unavailable", res);
         _enabled = false;
         _loading = false;
         _status = "unavailable";
     });
     DeviceEventEmitter.addListener(NFC_ENABLED, (res) => {
-        console.log("DeviceEventEmitter ready", res);
         _enabled = true;
         _loading = false;
         _status = "ready";
@@ -90,7 +84,7 @@ let _registerToEvents = () => {
 };
 
 let _notifyListeners = (data) => {
-    console.log("_notifyListeners", data);
+    // console.log("_notifyListeners (This would be a good place to reformat the data", data);
     if(data){
         for(let _listener in _listeners){
             _listeners[_listener](data);
