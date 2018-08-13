@@ -25,7 +25,7 @@ const NFC_ERROR = '__NFC_ERROR';
 const NFC_MISSING = '__NFC_MISSING';
 const NFC_UNAVAILABLE = '__NFC_UNAVAILABLE';
 const NFC_ENABLED = '__NFC_ENABLED';
-const startUpNfcData = ReactNativeNFC.getStartUpNfcData || (() => ({}));
+// const startUpNfcData = ReactNativeNFC.getStartUpNfcData || (() => ({}));
 
 let _enabled = true;
 let _registeredToEvents = false;
@@ -39,38 +39,58 @@ if (Platform.OS == "ios") {
     eventEmitter.addListener(NFC_UNAVAILABLE, () => {_enabled = false; _loading = false; _status = "unavailable";});
     eventEmitter.addListener(NFC_ENABLED, () => {_enabled = true; _loading = false; _status = "ready";});
 } else {
-    DeviceEventEmitter.addListener(NFC_MISSING, () => {_enabled = false; _loading = false; _status = "missing";});
-    DeviceEventEmitter.addListener(NFC_UNAVAILABLE, () => {_enabled = false; _loading = false; _status = "unavailable";});
-    DeviceEventEmitter.addListener(NFC_ENABLED, () => {_enabled = true; _loading = false; _status = "ready";});
+    DeviceEventEmitter.addListener("__TESTING", (res) => {
+        console.log("DeviceEventEmitter testing", res);
+    });
+    DeviceEventEmitter.addListener(NFC_MISSING, (res) => {
+        console.log("DeviceEventEmitter missing", res);
+        _enabled = false;
+        _loading = false;
+        _status = "missing";
+    });
+    DeviceEventEmitter.addListener(NFC_UNAVAILABLE, (res) => {
+        console.log("DeviceEventEmitter unavailable", res);
+        _enabled = false;
+        _loading = false;
+        _status = "unavailable";
+    });
+    DeviceEventEmitter.addListener(NFC_ENABLED, (res) => {
+        console.log("DeviceEventEmitter ready", res);
+        _enabled = true;
+        _loading = false;
+        _status = "ready";
+    });
 }
 
 ReactNativeNFC.isSupported();
 
 let _registerToEvents = () => {
-    if(!_registeredToEvents){
-        if (Platform.OS == "ios") {
-            try{
-                eventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
-                eventEmitter.addListener(NFC_ERROR, _notifyErrListeners);
-            }catch(iosErr){
-                console.log("iosErr", iosErr);
-            }
+    if (Platform.OS == "ios") {
+        try{
+            eventEmitter.removeAllListeners(NFC_DISCOVERED);
+            eventEmitter.removeAllListeners(NFC_ERROR);
+            eventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
+            eventEmitter.addListener(NFC_ERROR, _notifyErrListeners);
+        }catch(iosErr){
+            console.log("iosErr", iosErr);
         }
-        else{
-            try{
-                startUpNfcData(_notifyListeners);
-                DeviceEventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
-                DeviceEventEmitter.addListener(NFC_ERROR, _notifyErrListeners);
+    }
+    else{
+        try{
+            // startUpNfcData(_notifyListeners);
+            DeviceEventEmitter.removeAllListeners(NFC_DISCOVERED);
+            DeviceEventEmitter.removeAllListeners(NFC_ERROR);
+            DeviceEventEmitter.addListener(NFC_DISCOVERED, _notifyListeners);
+            DeviceEventEmitter.addListener(NFC_ERROR, _notifyErrListeners);
 
-            }catch(androidErr){
-                console.log("androidErr", androidErr);
-            }
+        }catch(androidErr){
+            console.log("androidErr", androidErr);
         }
-        _registeredToEvents = true;
     }
 };
 
 let _notifyListeners = (data) => {
+    console.log("_notifyListeners", data);
     if(data){
         for(let _listener in _listeners){
             _listeners[_listener](data);
