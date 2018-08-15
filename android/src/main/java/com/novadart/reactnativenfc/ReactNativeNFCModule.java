@@ -209,7 +209,9 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
     }
 
     private void sendResponseEvent(String event, @Nullable WritableMap payload) {
-        payload.putString("origin", "android");
+        if(payload != null){
+            payload.putString("origin", "android");
+        }
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(event, payload);
