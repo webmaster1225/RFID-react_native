@@ -84,10 +84,36 @@ let _registerToEvents = () => {
 };
 
 let _notifyListeners = (data) => {
-    // console.log("_notifyListeners (This would be a good place to reformat the data", data);
+    let payload = {
+        from_device: data
+    };
+    
+    if (Platform.OS == "ios") {
+        if(data[0]){
+            let dat = data[0];
+            payload.id = dat.tid;
+            payload.type = dat.type;
+            payload.origin = dat.origin;
+            if(dat.encoding){
+                payload.encoding = dat.encoding;
+            }
+            payload.scanned = dat.payload;
+        }
+    }
+    else{
+        payload.origin = data.origin;
+        payload.id = data.id;
+        payload.type = data.type;
+        if(data.data[0] && data.data[0][0]){
+            let dat = data.data[0][0];
+            payload.encoding = dat.encoding;
+            payload.scanned = dat.data;
+        }
+    }
+
     if(data){
         for(let _listener in _listeners){
-            _listeners[_listener](data);
+            _listeners[_listener](payload);
         }
     }
 };
