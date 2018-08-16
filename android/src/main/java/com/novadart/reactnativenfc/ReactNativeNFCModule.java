@@ -148,7 +148,7 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
                     break;
 
             }
-            stopForegroundDispatch(getReactApplicationContext().getCurrentActivity(), adapter);
+            // stopForegroundDispatch(getReactApplicationContext().getCurrentActivity(), adapter);
         }
     }
 
