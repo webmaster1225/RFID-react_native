@@ -85,30 +85,21 @@ let _registerToEvents = () => {
 
 let _notifyListeners = (data) => {
     let payload = {
-        from_device: data
+        from_device: data,
+        id: null,
+        type: null,
+        origin: null,
+        encoding: null,
+        scanned: null
     };
     
-    if (Platform.OS == "ios") {
-        if(data[0]){
-            let dat = data[0];
-            payload.id = dat.tid;
-            payload.type = dat.type;
-            payload.origin = dat.origin;
-            if(dat.encoding){
-                payload.encoding = dat.encoding;
-            }
-            payload.scanned = dat.payload;
-        }
-    }
-    else{
-        payload.origin = data.origin;
-        payload.id = data.id;
-        payload.type = data.type;
-        if(data.data[0] && data.data[0][0]){
-            let dat = data.data[0][0];
-            payload.encoding = dat.encoding;
-            payload.scanned = dat.data;
-        }
+    payload.origin = data.origin;
+    payload.id = data.id;
+    payload.type = data.type;
+    if(data.data[0] && data.data[0][0]){
+        let dat = data.data[0][0];
+        payload.encoding = dat.encoding;
+        payload.scanned = dat.data;
     }
 
     if(data){
