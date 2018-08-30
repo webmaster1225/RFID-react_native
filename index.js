@@ -136,6 +136,11 @@ NFC.initialize = () => {
     }
 };
 
+NFC.stopScan = () => {
+    const stopScan = ReactNativeNFC.stopScan || (() => ({}));
+    stopScan();
+};
+
 NFC.isEnabled = () => {
     return _enabled && !_loading;
 }
