@@ -47,10 +47,16 @@ Add the following intent filters and metadata tag to instruct Android that you w
 records and generic payloads about NFC tech, as a fallback in case NDEF messages could not be parsed (see [here](https://developer.android.com/guide/topics/connectivity/nfc/nfc.html#dispatching)
 for more info about this).
 
+* This is optional, this is now set up to run in the foreground so that the scan is integrated into the application.
+
 ```xml
 <intent-filter>
     <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
     <category android:name="android.intent.category.DEFAULT"/>
+</intent-filter>
+
+<intent-filter>
+    <action android:name="android.nfc.action.TAG_DISCOVERED"/>
 </intent-filter>
 
 <intent-filter>
@@ -79,20 +85,17 @@ Create the file `android/src/main/res/xml/nfc_tech_filter.xml` and add the follo
 ```
 
 ### Example AndroidManifest.xml
- ```xml
+```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.reactnativenfcdemo"
           android:versionCode="1"
           android:versionName="1.0">
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.NFC" />
-
     <uses-sdk
             android:minSdkVersion="16"
             android:targetSdkVersion="22" />
-
     <application
             android:name=".MainApplication"
             android:allowBackup="true"
@@ -106,41 +109,35 @@ Create the file `android/src/main/res/xml/nfc_tech_filter.xml` and add the follo
                 android:launchMode="singleTask"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
                 android:windowSoftInputMode="adjustResize">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
+            <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED"/>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED"/>
             </intent-filter>
-
             <meta-data android:name="android.nfc.action.TECH_DISCOVERED" android:resource="@xml/nfc_tech_filter" />
-
         </activity>
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
     </application>
-
 </manifest>
-
 ```
-
 
 ## Usage
 
 What you need to do is to register a listener on the NFC module, like this:
 
-```
+```javascript
 function listener(payload){
     // TODO
 }
-
 NFC.addListener(listener);
 ```
 

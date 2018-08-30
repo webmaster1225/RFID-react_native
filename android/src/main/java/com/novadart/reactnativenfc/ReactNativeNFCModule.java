@@ -1,14 +1,12 @@
 package com.novadart.reactnativenfc;
 
-import org.json.JSONObject;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
-import android.content.Intent;
 import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
+//import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
@@ -16,32 +14,52 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import android.nfc.tech.*;
+
 import com.facebook.react.bridge.ActivityEventListener;
-import com.facebook.react.bridge.Arguments;
+//import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.ReadableType;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.novadart.reactnativenfc.parser.NdefParser;
 import com.novadart.reactnativenfc.parser.TagParser;
 
-public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements ActivityEventListener,LifecycleEventListener {
-    public static final String MIME_TEXT_PLAIN = "text/plain";
+public class ReactNativeNFCModule extends ReactContextBaseJavaModule
+        implements ActivityEventListener,LifecycleEventListener {
+
     private static final String EVENT_NFC_DISCOVERED = "__NFC_DISCOVERED";
     private static final String EVENT_NFC_ERROR = "__NFC_ERROR";
     private static final String EVENT_NFC_MISSING = "__NFC_MISSING";
     private static final String EVENT_NFC_UNAVAILABLE = "__NFC_UNAVAILABLE";
     private static final String EVENT_NFC_ENABLED = "__NFC_ENABLED";
-    private NfcAdapter adapter;
+    private static final String[][] techList = new String[][]{ new String[] {
+        IsoDep.class.getName(),
+        NfcA.class.getName(),
+        NfcB.class.getName(),
+        NfcF.class.getName(),
+        NfcV.class.getName(),
+        Ndef.class.getName(),
+        // NfcBarcode.class.getName(),
+        NdefFormatable.class.getName(),
+        MifareClassic.class.getName(),
+        MifareUltralight.class.getName()
+    } };
 
     // caches the last message received, to pass it to the listeners when it reconnects
+    private NfcAdapter adapter;
     private WritableMap startupNfcData;
     private boolean startupNfcDataRetrieved = false;
-
     private boolean startupIntentProcessed = false;
+    private static boolean allowScan = false;
 
     public ReactNativeNFCModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -51,45 +69,63 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
     }
 
     @Override
-    public String getName() {
-        return "ReactNativeNFC";
-    }
-
-
-    @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {}
 
     @Override
     public void onNewIntent(Intent intent) {
-       handleIntent(intent,false);
+        // handleIntent(intent, false);
+    }
+    
+    @Override
+    public String getName() {
+        return "ReactNativeNFC";
     }
 
-   /**
+    /**
      * @param activity The corresponding {@link Activity} requesting the foreground dispatch.
      * @param nfcAdapter The {@link NfcAdapter} used for the foreground dispatch.
      */
     public static void setupForegroundDispatch(final Activity activity, NfcAdapter nfcAdapter) {
+
         final Intent intent = new Intent(activity.getApplicationContext(), activity.getClass());
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
  
         final PendingIntent pendingIntent = PendingIntent.getActivity(
                 activity.getApplicationContext(), 0, intent, 0);
  
-        IntentFilter[] filters = new IntentFilter[1];
-        String[][] techList = new String[][]{};
- 
-        // Notice that this is the same filter as in our manifest.
-        filters[0] = new IntentFilter();
-        filters[0].addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        filters[0].addCategory(Intent.CATEGORY_DEFAULT);
-        try {
-            filters[0].addDataType(MIME_TEXT_PLAIN);
-        } catch (MalformedMimeTypeException e) {
-            Log.d("NFC_PLUGIN_LOG", "Check your mime type");
-            throw new RuntimeException("Check your mime type.");
+        IntentFilter[] filters = new IntentFilter[3];
+
+        String[] filterNames = new String[]{
+            NfcAdapter.ACTION_NDEF_DISCOVERED,
+            NfcAdapter.ACTION_TAG_DISCOVERED,
+            NfcAdapter.ACTION_TECH_DISCOVERED
+        };
+
+        int pos = 0;
+
+        for(String filter : filterNames){
+            filters[pos] = new IntentFilter();
+            filters[pos].addAction(filter);
+            if(filter.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
+                Log.d("NFC_PLUGIN_LOG", filter + " gets a mime type added to it");
+                try {
+                    filters[pos].addCategory(Intent.CATEGORY_DEFAULT);
+                    filters[pos].addDataType("*/*");
+                } catch (MalformedMimeTypeException e) {
+                    Log.d("NFC_PLUGIN_LOG", "Check your mime type");
+                    throw new RuntimeException("Check your mime type.");
+                }
+            }
+            pos++;
         }
-         
-        nfcAdapter.enableForegroundDispatch(activity, pendingIntent, filters, techList);
+        
+        try{
+            Log.d("NFC_PLUGIN_LOG", "Starting Foreground Dispatch");
+            nfcAdapter.enableForegroundDispatch(activity, pendingIntent, filters, techList);
+        }catch(Exception e){
+            Log.d("NFC_PLUGIN_LOG", "Failed enabling forground dispatch from permissions");
+            Log.e("NFC_PLUGIN_LOG", e.toString());
+        }
     }
 
     /**
@@ -97,58 +133,54 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
      * @param adapter The {@link NfcAdapter} used for the foreground dispatch.
      */
     public static void stopForegroundDispatch(final Activity activity, NfcAdapter adapter) {
-        adapter.disableForegroundDispatch(activity);
+        try{
+            Log.d("NFC_PLUGIN_LOG", "stopForegroundDispatch called");
+            adapter.disableForegroundDispatch(activity);
+        }catch(Exception e){
+            Log.d("NFC_PLUGIN_LOG", "Error in stopping forground dispatch");
+            Log.d("NFC_PLUGIN_LOG", e.toString());
+        }
     }
 
     private void handleIntent(Intent intent, boolean startupIntent) {
+        Tag tag = (Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
         if (intent != null && intent.getAction() != null) {
-
+            Log.d("NFC_PLUGIN_LOG", "handling the intent");
+            String serialNumber = getSerialNumber(tag);
             switch (intent.getAction()){
-
                 case NfcAdapter.ACTION_ADAPTER_STATE_CHANGED:
                     Log.d("NFC_PLUGIN_LOG", "ACTION_ADAPTER_STATE_CHANGED");
-                    Parcelable[] raws = intent.getParcelableArrayExtra(
-                            NfcAdapter.EXTRA_NDEF_MESSAGES);
-
-                    for (Parcelable row : raws){
-                        System.out.println(row);
-                    }
                     break;
 
                 case NfcAdapter.ACTION_NDEF_DISCOVERED:
                     Log.d("NFC_PLUGIN_LOG", "ACTION_NDEF_DISCOVERED");
                     Parcelable[] rawMessages = intent.getParcelableArrayExtra(
-                            NfcAdapter.EXTRA_NDEF_MESSAGES);
-                    
-                    for (Parcelable row : rawMessages){
-                        System.out.println(row);
-                    }
+                        NfcAdapter.EXTRA_NDEF_MESSAGES);
 
                     if (rawMessages != null) {
                         NdefMessage[] messages = new NdefMessage[rawMessages.length];
-                        for (int i = 0; i < rawMessages.length; i++) {
-                            messages[i] = (NdefMessage) rawMessages[i];
+                        int pos = 0;
+                        for (Parcelable row : rawMessages){
+                            Log.d("NFC_PLUGIN_LOG:rawMsg", row.toString());
+                            messages[pos] = (NdefMessage) row;
+                            pos++;
                         }
-
-                        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                        String serialNumber = getSerialNumber(tag);
-
-                        processNdefMessages(serialNumber,messages,startupIntent);
+                        processNdefMessages(serialNumber, messages, startupIntent);
                     }
                     break;
 
-                // ACTION_TAG_DISCOVERED is an unlikely case, according to https://developer.android.com/guide/topics/connectivity/nfc/nfc.html
                 case NfcAdapter.ACTION_TAG_DISCOVERED:
-                case NfcAdapter.ACTION_TECH_DISCOVERED:
-                    Log.d("NFC_PLUGIN_LOG", "ACTION_TECH_DISCOVERED/ACTION_TAG_DISCOVERED");
-                    Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                    String serialNumber = getSerialNumber(tag);
-
-                    processTag(serialNumber,tag,startupIntent);
+                    Log.d("NFC_PLUGIN_LOG", "ACTION_TAG_DISCOVERED");
+                    processTag(serialNumber, tag, startupIntent);
                     break;
-
+                case NfcAdapter.ACTION_TECH_DISCOVERED:
+                    Log.d("NFC_PLUGIN_LOG", "ACTION_TECH_DISCOVERED");
+                    processTag(serialNumber, tag, startupIntent);
+                    break;
+                default:
+                    Log.d("NFC_PLUGIN_LOG:DEFAULT", intent.getAction());
             }
-            // stopForegroundDispatch(getReactApplicationContext().getCurrentActivity(), adapter);
         }
     }
 
@@ -174,7 +206,7 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
     public void initialize() {
         if(adapter != null) {
             if (adapter.isEnabled()) {
-                Log.d("NFC_PLUGIN_LOG", "Reader should be started here, but not sure if that is how this works");
+                // Log.d("NFC_PLUGIN_LOG", "Reader should be started here, but not sure if that is how this works");
                 setupForegroundDispatch(getCurrentActivity(), adapter);
                 sendResponseEvent(EVENT_NFC_ENABLED, null);
             }else{
@@ -227,30 +259,31 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
     private void processNdefMessages(String serialNumber, NdefMessage[] messages, boolean startupIntent){
         NdefProcessingTask task = new NdefProcessingTask(serialNumber, startupIntent);
         task.execute(messages);
+        stopForegroundDispatch(getActivity(), adapter);
     }
 
     private void processTag(String serialNumber, Tag tag, boolean startupIntent){
         TagProcessingTask task = new TagProcessingTask(serialNumber, startupIntent);
         task.execute(tag);
+        stopForegroundDispatch(getActivity(), adapter);
     }
 
     @Override
-    public void onHostResume() {
-        if(!startupIntentProcessed){
-            if(getReactApplicationContext().getCurrentActivity() != null){ // it shouldn't be null but you never know
-                // necessary because NFC might cause the activity to start and we need to catch that data too
-                handleIntent(getReactApplicationContext().getCurrentActivity().getIntent(),true);
-            }
-            startupIntentProcessed = true;
-        }
+    public void onHostResume() { }
+
+    @Override
+    public void onHostPause() {
+        stopForegroundDispatch(getActivity(), adapter);
     }
 
     @Override
-    public void onHostPause() {}
+    public void onHostDestroy() {
+        stopForegroundDispatch(getActivity(), adapter);
+    }
 
-    @Override
-    public void onHostDestroy() {}
-
+    private Activity getActivity(){
+        return getReactApplicationContext().getCurrentActivity();
+    }
 
     private class NdefProcessingTask extends AsyncTask<NdefMessage[],Void,WritableMap> {
 
@@ -278,7 +311,7 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
     }
 
 
-    private class TagProcessingTask extends AsyncTask<Tag,Void,WritableMap> {
+    private class TagProcessingTask extends AsyncTask<Tag, Void, WritableMap> {
 
         private final String serialNumber;
         private final boolean startupIntent;
@@ -291,7 +324,17 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
         @Override
         protected WritableMap doInBackground(Tag... params) {
             Tag tag = params[0];
-            return TagParser.parse(serialNumber, tag);
+            WritableMap map = TagParser.parse(serialNumber, tag);
+            Log.d("NFC_PLUGIN_LOG", "" + tag.describeContents() + " <-> 0");
+            int pos = 0;
+            for(Tag param : params) {
+                if (pos > 0) {
+                    map.merge(TagParser.parse(serialNumber + pos, param));
+                    Log.d("NFC_PLUGIN_LOG", "" + param.describeContents() + " <-> " + pos);
+                }
+                pos++;
+            }
+            return map;
         }
 
         @Override
@@ -302,6 +345,4 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule implements 
             sendEvent(tagData);
         }
     }
-
-
 }

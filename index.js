@@ -96,10 +96,18 @@ let _notifyListeners = (data) => {
     payload.origin = data.origin;
     payload.id = data.id;
     payload.type = data.type;
-    if(data.data[0] && data.data[0][0]){
-        let dat = data.data[0][0];
-        payload.encoding = dat.encoding;
-        payload.scanned = dat.data;
+    if(Platform.OS !== "ios" && data.type == "TAG"){
+        let tagType = data.data.techList[0]
+        payload.from_device.data = [[data.data]]
+        payload.encoding = "UTF-8";
+        payload.type = tagType.replace("android.nfc.tech.", "")
+        payload.scanned = data.id
+    }else{
+        if(data.data[0] && data.data[0][0]){
+            let dat = data.data[0][0];
+            payload.encoding = dat.encoding;
+            payload.scanned = dat.data;
+        }
     }
 
     if(data){
