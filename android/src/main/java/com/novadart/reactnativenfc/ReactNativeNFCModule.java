@@ -73,7 +73,7 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule
 
     @Override
     public void onNewIntent(Intent intent) {
-        // handleIntent(intent, false);
+        handleIntent(intent, false);
     }
     
     @Override
