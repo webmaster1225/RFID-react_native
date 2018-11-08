@@ -209,7 +209,7 @@ Upon a successful scan, the callback will recieve a payload in the following for
 
 ```json
 {
-    "id": "unavailable", //This is not available on IOS
+    "id": "unavailable",
     "type": "NFC",
     "encoding": "UTF-8",
     "origin": "ios",
