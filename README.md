@@ -43,6 +43,19 @@ in your app but if not add the following to `YourAppName.entitlements`
 </dict>
 ```
 
+#### Note: If you are having issues getting this to run and you don't have any swift files in your project, just create a new one as simple as this to get the application building with the swift packages (weird bug found while developing)
+
+```swift
+//
+//  SwiftFile.swift
+//  MyAppName
+//
+//  Created by User on Date.
+//  Copyright © 2018 Facebook. All rights reserved.
+
+import Foundation
+
+```
 
 ## Android Configuration
 
