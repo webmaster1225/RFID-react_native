@@ -186,4 +186,42 @@ NFC.removeAllListeners = () => {
     _registeredToEvents = false;
 };
 
+export class NfcRfidScanner {
+
+    nfcEnabled = false;
+
+    init = function(){
+        try{
+            NFC.initialize();
+        }catch(err){
+            console.log("Current open error", err);
+        }
+    };
+
+    stopScan = function(){
+        NFC.stopScan();
+    };
+
+    isEnabled = function(){
+        return NFC.isEnabled();
+    };
+
+    getStatus = function(){
+        return NFC.checkDeviceStatus();
+    };
+
+    addListener = function(name, listenerCallback, errorCallback){
+        console.log("Looking for errorCallback", errorCallback);
+        if(NFC.isEnabled()){
+            NFC.addListener(name, listenerCallback, errorCallback);
+        }
+    };
+
+    clearListeners = function(){
+        if(NFC.isEnabled()){
+            NFC.removeAllListeners()
+        }
+    };
+};
 export default NFC;
+

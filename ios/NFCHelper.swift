@@ -1,15 +1,7 @@
-//
-//  NFCHelper.swift
-//
-//  Created by Alexander Obi.
-//  Copyright © 2017 Smartrac. All rights reserved.
-//
-
 import Foundation
 import CoreNFC
 
 class NFCHelper: NSObject {
-  
   //getFormatName:: NFCTypeNameFormat -> String
   func getFormatName (_ format: NFCTypeNameFormat) -> String {
     switch format {
