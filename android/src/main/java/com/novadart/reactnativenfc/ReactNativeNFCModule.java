@@ -11,7 +11,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import android.nfc.tech.*;
