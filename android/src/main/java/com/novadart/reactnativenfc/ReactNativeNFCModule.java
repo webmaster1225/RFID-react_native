@@ -73,7 +73,10 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule
 
     @Override
     public void onNewIntent(Intent intent) {
-        handleIntent(intent, false);
+        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        if (tag != null) {
+            handleIntent(intent, false);
+        }
     }
     
     @Override
