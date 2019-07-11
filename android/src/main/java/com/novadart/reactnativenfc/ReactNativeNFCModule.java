@@ -6,18 +6,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.nfc.NdefMessage;
-//import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import android.util.Log;
-
 import android.nfc.tech.*;
-
 import com.facebook.react.bridge.ActivityEventListener;
-//import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -253,10 +249,13 @@ public class ReactNativeNFCModule extends ReactContextBaseJavaModule
     }
 
     private String getSerialNumber(Tag tag){
-        byte[] id = tag.getId();
-        String serialNumber = DataUtils.bytesToHex(id);
-
-        return serialNumber;
+        if (tag == null){
+            return "";
+        } else {
+            byte[] id = tag.getId();
+            String serialNumber = DataUtils.bytesToHex(id);
+            return serialNumber;
+        }
     }
 
     private void processNdefMessages(String serialNumber, NdefMessage[] messages, boolean startupIntent){
