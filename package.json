@@ -28,6 +28,9 @@
   "peerDependencies": {
     "react-native": ">=0.40.0"
   },
+  "files": [
+    "react-native-rfid-nfc.podspec"
+  ],
   "nativePackage": true,
   "author": "Joel Diaz",
   "contributors": [
