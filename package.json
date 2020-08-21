@@ -28,9 +28,6 @@
   "peerDependencies": {
     "react-native": ">=0.40.0"
   },
-  "files": [
-    "react-native-rfid-nfc.podspec"
-  ],
   "nativePackage": true,
   "author": "Joel Diaz",
   "contributors": [
@@ -38,5 +35,8 @@
       "name": "Joel Diaz",
       "url": "https://github.com/joeldiaz2302"
     }
-  ]
+  ],
+  "scripts": {
+    "podInstall": "cd ios && bundle exec pod install"
+  }
 }
