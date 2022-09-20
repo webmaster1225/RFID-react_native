@@ -1,5 +1,7 @@
 # Reading NFC tags for React Native (Android and iOS)
 
+*** NOTE: project is out of date and no longer supported by me. I cannot make any updates ***
+
 This project has the goal of making it easy (or easier) to scan NFC tags and read the NDEF records they contain. This is forked from the project [react-native-rfid-nfc](https://github.com/SMARTRACTECHNOLOGY/react-native-rfid-nfc) by [SMARTRACTECHNOLOGY](https://github.com/SMARTRACTECHNOLOGY).
 
 To read the NDEF data it makes use of the library **[ndef-tools-for-android](https://github.com/skjolber/ndef-tools-for-android)**.
